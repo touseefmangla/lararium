@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { X } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { UseFormReturn } from 'react-hook-form'
 import { type z } from 'zod'
 import * as Tabs from '@radix-ui/react-tabs'
@@ -23,14 +23,13 @@ import { ConfirmDialog, Form, Picture, TypographyH4 } from '@/ui'
 
 import { checkKeyDown, cn } from '@/utils'
 
-import { TreeNode, TreeType, Union } from '@/types'
+import { TreeNode, Union } from '@/types'
 
 interface NodeInfoModalProps {
   readonly: boolean
   canExportGallery: boolean
   showModal: boolean
   treeSlug: string
-  treeType: TreeType
   node: TreeNode | null
   nodes: TreeNode[]
   unions: Union[]
@@ -45,7 +44,6 @@ export function NodeInfoModal({
   canExportGallery,
   showModal,
   treeSlug,
-  treeType,
   node,
   nodes,
   unions,
@@ -58,6 +56,8 @@ export function NodeInfoModal({
   const t_trees = useTranslations('trees')
   const t_errors = useTranslations('errors')
   const t_toasts = useTranslations('toasts')
+  const locale = useLocale()
+  const contentDir = locale === 'ur' ? 'rtl' : 'ltr'
 
   const [formLoading, setFormLoading] = useState(false)
   const [editMode, setEditMode] = useState(false)
@@ -134,9 +134,10 @@ export function NodeInfoModal({
         onValueChange={(value) => setCurrentTab(value as 'general' | 'relations' | 'gallery')}
       >
         <div
+          dir="ltr"
           className={cn(
             'text-ocean-400 fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-out',
-            'sm:top-0 sm:left-0 sm:h-full sm:w-2/5',
+            'sm:top-0 sm:right-auto sm:left-0 sm:h-full sm:w-2/5',
             isDragging && 'transition-none',
             showModal
               ? 'translate-y-0 sm:translate-x-0 sm:translate-y-0'
@@ -184,6 +185,7 @@ export function NodeInfoModal({
                   />
                 </div>
                 <div
+                  dir={contentDir}
                   className={cn(
                     'styled-scrollbar flex w-full flex-1 flex-col',
                     'overflow-y-auto px-6 pt-2 pb-6 text-start'
@@ -226,7 +228,6 @@ export function NodeInfoModal({
                   <Tabs.Content value="general">
                     <NodeInfoTabGeneral
                       readonly={readonly}
-                      treeType={treeType}
                       node={node}
                       nodes={nodes}
                       unions={unions}
@@ -256,7 +257,6 @@ export function NodeInfoModal({
                     <Tabs.Content value="gallery">
                       <NodeGalleryContent
                         readonly={readonly}
-                        treeType={treeType}
                         pictures={pictureOps.pictures}
                         loadingPictures={pictureOps.loadingPictures}
                         loading={loading}
@@ -283,9 +283,10 @@ export function NodeInfoModal({
         </div>
         {!isMobile && (
           <div
+            dir="ltr"
             className={cn(
               'text-pale-ocean fixed inset-x-0 bottom-0 z-40 transition-transform duration-400 ease-linear',
-              'sm:top-0 sm:left-0 sm:h-full sm:w-5/6',
+              'sm:top-0 sm:right-auto sm:left-0 sm:h-full sm:w-5/6',
               isDragging && 'transition-none',
               showModal
                 ? 'translate-y-0 sm:translate-x-0 sm:translate-y-0 sm:delay-200'
@@ -295,6 +296,7 @@ export function NodeInfoModal({
             onClick={(e) => e.stopPropagation()}
           >
             <div
+              dir={contentDir}
               className={cn(
                 'bg-ocean-400 h-full flex-col',
                 'shadow-2l overflow-hidden sm:flex sm:flex-row',
@@ -303,7 +305,6 @@ export function NodeInfoModal({
             >
               <NodeGalleryContent
                 readonly={readonly}
-                treeType={treeType}
                 pictures={pictureOps.pictures}
                 loadingPictures={pictureOps.loadingPictures}
                 loading={loading}
@@ -363,7 +364,6 @@ export function NodeInfoModal({
       {pictureOps.expandedPicture && (
         <PictureFullscreenModal
           picture={pictureOps.expandedPicture}
-          treeType={treeType}
           onClose={pictureOps.onPictureShrink}
         />
       )}

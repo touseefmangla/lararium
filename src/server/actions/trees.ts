@@ -71,9 +71,6 @@ type TreeWriteErrorMessage = (typeof TREE_WRITE_ERROR_MESSAGES)[number]
 type MemberLifeDates = { birthDate?: Date | null; deathDate?: Date | null }
 type UnionLifeDates = { marriedAt?: Date | null; divorcedAt?: Date | null }
 
-const sameDateValue = (a?: Date | null, b?: Date | null) =>
-  (a?.getTime() ?? null) === (b?.getTime() ?? null)
-
 function getUnionLifeDateError(
   spouses: MemberLifeDates[],
   dates: UnionLifeDates
@@ -103,7 +100,7 @@ function getUnionLifeDateError(
 }
 
 type TreeAdminRecipient = {
-  user: { email: string | null; name: string | null; language?: 'CA' | 'ES' | 'EN' | null }
+  user: { email: string | null; name: string | null; language?: 'UR' | 'EN' | null }
 }
 
 async function sendDeletionRequestedEmails({
@@ -240,7 +237,6 @@ export const createTree = async (values: z.infer<typeof CreateTreeSchema>): Prom
       data: {
         slug: slugify(values.name),
         name: values.name,
-        type: values.type,
         newsletter: values.newsletter,
         accesses: { create: { userId, role: 'ADMIN' } },
       },
@@ -288,7 +284,6 @@ export const updateTree = async (
       where: { id },
       data: {
         name: values.name,
-        type: values.type,
         newsletter: values.newsletter,
         slug: slugify(values.name),
       },
@@ -299,7 +294,7 @@ export const updateTree = async (
       },
     })
 
-    const changes = getChanges(prevTree, values, ['name', 'type', 'newsletter'])
+    const changes = getChanges(prevTree, values, ['name', 'newsletter'])
 
     if (changes) {
       await db.activityLog.create({
@@ -699,12 +694,7 @@ export const createTreeNode = async (
       data: {
         treeId: values.treeId,
         fullName: values.fullName,
-        alias: values.alias,
-        birthPlace: values.birthPlace,
-        birthDate: values.birthDate,
-        deathPlace: values.deathPlace,
-        deathDate: values.deathDate,
-        gender: values.gender,
+        servingAs: values.servingAs,
       },
       include: { edgesFrom: true, edgesTo: true },
     })
@@ -754,40 +744,16 @@ export const updateTreeNode = async (
     })
     if (!prevNode) return { error: true, message: 'error-node-not-found' }
 
-    const lifeDatesChanged =
-      !sameDateValue(prevNode.birthDate, values.birthDate) ||
-      !sameDateValue(prevNode.deathDate, values.deathDate)
-
-    if (lifeDatesChanged) {
-      const unions = await db.union.findMany({
-        where: {
-          treeId: values.treeId,
-          OR: [{ spouseAId: values.id }, { spouseBId: values.id }],
-        },
-        select: { marriedAt: true, divorcedAt: true },
-      })
-      const lifeDateError = unions
-        .map((union) => getUnionLifeDateError([values], union))
-        .find(Boolean)
-      if (lifeDateError) return { error: true, message: lifeDateError }
-    }
-
     await db.treeNode.update({
       where: { id: prevNode.id },
       data: {
         fullName: values.fullName,
-        alias: values.alias,
-        birthPlace: values.birthPlace,
-        birthDate: values.birthDate,
-        deathPlace: values.deathPlace,
-        deathDate: values.deathDate,
-        gender: values.gender,
-        biography: values.biography,
+        servingAs: values.servingAs,
       },
       include: { edgesFrom: true, edgesTo: true },
     })
 
-    const changes = getChanges(prevNode, values, ['fullName', 'birthDate', 'deathDate', 'gender'])
+    const changes = getChanges(prevNode, values, ['fullName', 'servingAs'])
 
     if (changes)
       await db.activityLog.create({
@@ -830,10 +796,7 @@ async function hasReachedMarriageLimit(
   const existingUnions = await db.union.findMany({
     where: {
       treeId,
-      OR: [
-        { spouseAId: { in: uniqueNodeIds } },
-        { spouseBId: { in: uniqueNodeIds } },
-      ],
+      OR: [{ spouseAId: { in: uniqueNodeIds } }, { spouseBId: { in: uniqueNodeIds } }],
     },
     select: { id: true, spouseAId: true, spouseBId: true },
   })

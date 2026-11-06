@@ -8,8 +8,7 @@ import { ocean } from '@/styles/colors'
 import type { Locale } from '@/utils/language'
 
 import enMessages from '../../messages/en.json'
-import esMessages from '../../messages/es.json'
-import caMessages from '../../messages/ca.json'
+import urMessages from '../../messages/ur.json'
 
 const { AUTH_URL } = env
 
@@ -96,16 +95,14 @@ interface NewsletterEmailParams {
 function getEmailTranslations(locale: Locale = 'en') {
   const messagesMap = {
     en: enMessages,
-    es: esMessages,
-    ca: caMessages,
+    ur: urMessages,
   } as const
   return messagesMap[locale] || messagesMap.en
 }
 
 const EMAIL_LOCALE_TAGS: Record<Locale, string> = {
-  ca: 'ca-ES',
+  ur: 'ur-PK',
   en: 'en-US',
-  es: 'es-ES',
 } as const
 
 function formatEmailDate(date: Date, locale: Locale, options: Intl.DateTimeFormatOptions): string {
@@ -264,7 +261,7 @@ ${replacePlaceholders(t.emails.copyright, { year: new Date().getFullYear() })}
 
   return sendEmail(
     {
-      Source: `Roots <${env.AMAZON_SES_FROM_EMAIL}>`,
+      Source: `Kinship <${env.AMAZON_SES_FROM_EMAIL}>`,
       Destination: { ToAddresses: [recipientEmail] },
       Message: {
         Subject: {
@@ -413,7 +410,7 @@ ${replacePlaceholders(t.emails.copyright, { year: new Date().getFullYear() })}
 
   return sendEmail(
     {
-      Source: `Roots <${env.AMAZON_SES_FROM_EMAIL}>`,
+      Source: `Kinship <${env.AMAZON_SES_FROM_EMAIL}>`,
       Destination: { ToAddresses: [recipientEmail] },
       Message: {
         Subject: {
@@ -571,7 +568,7 @@ ${replacePlaceholders(t.emails.copyright, { year: new Date().getFullYear() })}
 
   return sendEmail(
     {
-      Source: `Roots <${env.AMAZON_SES_FROM_EMAIL}>`,
+      Source: `Kinship <${env.AMAZON_SES_FROM_EMAIL}>`,
       Destination: { ToAddresses: [recipientEmail] },
       Message: {
         Subject: {
@@ -668,7 +665,7 @@ ${replacePlaceholders(t.emails.copyright, { year: new Date().getFullYear() })}
 
   return sendEmail(
     {
-      Source: `Roots <${env.AMAZON_SES_FROM_EMAIL}>`,
+      Source: `Kinship <${env.AMAZON_SES_FROM_EMAIL}>`,
       Destination: { ToAddresses: [recipientEmail] },
       Message: {
         Subject: {
@@ -975,7 +972,7 @@ ${replacePlaceholders(t.emails.copyright, { year: new Date().getFullYear() })}
 
   return sendEmail(
     {
-      Source: `Roots <${env.AMAZON_SES_FROM_EMAIL}>`,
+      Source: `Kinship <${env.AMAZON_SES_FROM_EMAIL}>`,
       Destination: { ToAddresses: [recipientEmail] },
       Message: {
         Subject: {

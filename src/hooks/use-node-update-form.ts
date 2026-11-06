@@ -18,7 +18,7 @@ export function useNodeUpdateForm(tree: Tree, node: TreeNode | null, onSuccess?:
 
   const form = useForm<z.infer<typeof UpdateTreeNodeSchema>>({
     resolver: zodResolver(UpdateTreeNodeSchema),
-    defaultValues: { treeId: tree.id, fullName: '' },
+    defaultValues: { treeId: tree.id, fullName: '', servingAs: '' },
   })
 
   /** Reset form when node changes */
@@ -29,13 +29,7 @@ export function useNodeUpdateForm(tree: Tree, node: TreeNode | null, onSuccess?:
       id: node.id,
       treeId: tree.id,
       fullName: node.fullName ?? '',
-      alias: node.alias ?? '',
-      birthPlace: node.birthPlace ?? '',
-      birthDate: node.birthDate ? new Date(node.birthDate) : null,
-      deathPlace: node.deathPlace ?? '',
-      deathDate: node.deathDate ? new Date(node.deathDate) : null,
-      gender: node.gender ?? '',
-      biography: node.biography ?? '',
+      servingAs: node.servingAs ?? '',
     })
   }, [node, tree.id, form])
 

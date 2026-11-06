@@ -12,11 +12,11 @@ export default getRequestConfig(async () => {
   const defaultHeaders = await headers()
   const headersObj = Object.fromEntries(defaultHeaders.entries())
 
-  const host = headersObj['host'] || 'roots.rguixaro.dev'
-  const FORCE_CA_DOMAIN = 'arrels.rguixaro.dev'
+  const host = headersObj['host'] || process.env.NEXT_PUBLIC_UR_HOST || 'kinship.vercel.com'
+  const FORCE_UR_DOMAIN = process.env.NEXT_PUBLIC_UR_HOST || 'kinship.vercel.com'
 
-  const locales = ['ca', 'en', 'es']
-  const defaultLocale = 'ca'
+  const locales = ['ur', 'en']
+  const defaultLocale = process.env.NEXT_PUBLIC_DEFAULT_LOCALE === 'en' ? 'en' : 'ur'
 
   let locale: string
 
@@ -25,14 +25,14 @@ export default getRequestConfig(async () => {
     const user = await getUserById(session.user.id)
     if (user?.language) {
       locale = languageToLocale(user.language)
-    } else if (host === FORCE_CA_DOMAIN) {
-      locale = 'ca'
+    } else if (host === FORCE_UR_DOMAIN) {
+      locale = 'ur'
     } else {
       const negotiator = new Negotiator({ headers: headersObj })
       locale = negotiator.language(locales) || defaultLocale
     }
-  } else if (host === FORCE_CA_DOMAIN) {
-    locale = 'ca'
+  } else if (host === FORCE_UR_DOMAIN) {
+    locale = 'ur'
   } else {
     const negotiator = new Negotiator({ headers: headersObj })
     locale = negotiator.language(locales) || defaultLocale

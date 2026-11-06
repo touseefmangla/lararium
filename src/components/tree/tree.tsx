@@ -42,6 +42,8 @@ import { Tree, TreeEdge, TreeNode, Union } from '@/types'
 
 import { ocean } from '@/styles/colors'
 
+import { positionCoupleNodes } from '@/components/tree/layout'
+
 function getTimestampedTreeExportFilename(slug: string) {
   const timestamp = new Date()
     .toISOString()
@@ -98,6 +100,11 @@ export default function StyledTree({
     treeState.onSpouseUnionConfirmNeeded
   )
   const nodeOperations = useNodeOperations(tree, nodes)
+
+  const { setTreeNodes } = treeState
+  const handleNodeDrag = useCallback(() => {
+    setTreeNodes((nds) => positionCoupleNodes(nds))
+  }, [setTreeNodes])
   const exportMetadata = useMemo(() => {
     const generatedDate = new Intl.DateTimeFormat(locale, {
       day: 'numeric',
@@ -109,8 +116,8 @@ export default function StyledTree({
       familyName: tree.name,
       stats: [t_treeInfo('export-image-stat-members', { count: nodes.length })],
       generatedLabel: t_treeInfo('export-image-generated', { date: generatedDate }),
-      footerLabel: t_treeInfo('export-image-footer'),
-      footerDomain: locale === 'ca' ? 'arrels.rguixaro.dev' : 'roots.rguixaro.dev',
+      footerLabel: '',
+      footerDomain: '',
     }
   }, [locale, nodes.length, t_treeInfo, tree.name])
   const { isExporting, exportTreeImage } = useTreeImageExport(
@@ -192,7 +199,6 @@ export default function StyledTree({
           canExportGallery={canExportGallery}
           showModal={treeState.displayInfo}
           treeSlug={tree.slug}
-          treeType={tree.type}
           node={treeState.selectedNode}
           nodes={nodes}
           unions={unions}
@@ -206,13 +212,13 @@ export default function StyledTree({
           }}
         />
         <NodeCreateModal
-          treeType={tree.type}
           showModal={treeState.displayCreate}
           form={nodeCreateForm.form}
           onCreate={nodeCreateForm.onSubmit}
           onClose={treeState.dismissModal}
         />
         <ReactFlow
+          dir="ltr"
           nodes={treeState.treeNodes}
           edges={treeState.treeEdges}
           onNodesChange={treeState.onTreeNodesChange}
@@ -231,7 +237,11 @@ export default function StyledTree({
           panOnDrag
           zoomOnScroll
           deleteKeyCode={null}
-          nodesDraggable={false}
+          nodesDraggable={!readonly}
+          snapToGrid
+          snapGrid={[12, 12]}
+          onNodeDrag={handleNodeDrag}
+          onNodeDragStop={handleNodeDrag}
           nodesConnectable={!readonly}
           edgesFocusable={false}
           className={'bg-ocean-50 h-full w-full shadow-inner'}

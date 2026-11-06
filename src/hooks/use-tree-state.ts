@@ -74,7 +74,7 @@ export function useTreeState(
   const [showAllNodes, setShowAllNodes] = useState(true)
 
   const viewingOptionsEnabled =
-    enableProgressiveDisclosure && tree.type !== 'ANIMAL' && allNodes.length > 6
+    enableProgressiveDisclosure && allNodes.length > 6
 
   /**
    * Calculate visible nodes based on progressive disclosure settings
@@ -482,6 +482,11 @@ export function useTreeState(
     setTreeEdges(layoutResult.edges)
   }, [computedNodes, layoutResult.edges, setTreeNodes, setTreeEdges])
 
+  const resetLayout = useCallback(() => {
+    setTreeNodes(computedNodes)
+    setTreeEdges(layoutResult.edges)
+  }, [computedNodes, layoutResult.edges, setTreeNodes, setTreeEdges])
+
   // one RAF lets React Flow measure the node DOM before we center on it
   useEffect(() => {
     const target = pendingFocusNodeId
@@ -764,6 +769,7 @@ export function useTreeState(
 
     withAsync,
     resetView,
+    resetLayout,
     prepareExportView,
 
     collapseAllNodes,
